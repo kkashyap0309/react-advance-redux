@@ -24,3 +24,6 @@ package-lock.json
 *.sln
 *.sw?
 
+#Project specific for this project only
+backend/node_modules
+backend/package-lock.json
