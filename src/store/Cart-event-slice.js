@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { cartUIAction } from "./Cart-ui-slice";
 
 const cartInitialState = {
   items: [],
@@ -42,6 +43,60 @@ const cartSlice = createSlice({
     },
   },
 });
+
+//creating a thunk, A thunk is another way  to keep sideEffect and reducer separelty
+// Its works as action creator. 
+
+export function sendCartData(cart) {
+
+  //The redux will execute this method and it will give us dispatch argument automatically  so that inside this 
+  // function we can execute dispach again 
+  return async (dispatch) => {
+    dispatch(
+      cartUIAction.showNotification({
+        title: "pending",
+        status: "Sending...",
+        message: "Sending Cart Data",
+      })
+    );
+
+    async function sendRequest() {
+      const updateResponse = await fetch(
+        "http://localhost:4000/user-cart-product",
+        {
+          method: "PUT",
+          body: JSON.stringify({ cart }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!updateResponse.ok) {
+        throw new Error();
+      }
+    }
+
+    try {
+      await sendRequest();
+      dispatch(
+        cartUIAction.showNotification({
+          title: "Success",
+          status: "success",
+          message: "Cart updated successfully!!",
+        })
+      );
+    } catch (error) {
+      dispatch(
+        cartUIAction.showNotification({
+          title: "Error",
+          status: "error",
+          message: "Cart update Failed!!",
+        })
+      );
+    }
+  };
+}
 
 export default cartSlice;
 export const cartActions = cartSlice.actions;

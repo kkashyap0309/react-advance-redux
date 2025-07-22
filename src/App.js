@@ -3,8 +3,8 @@ import Cart from "./components/Cart/Cart";
 import Layout from "./components/Layout/Layout";
 import Products from "./components/Shop/Products";
 import { useEffect } from "react";
-import { cartUIAction } from "./store/Cart-ui-slice";
 import Notification from "./components/UI/Notification";
+import { sendCartData } from "./store/Cart-event-slice";
 
 let initialCall = true;
 
@@ -20,40 +20,13 @@ function App() {
 
   const cart = useSelector((state) => state.cart);
   useEffect(() => {
-    const updateCartData  = async () => {
-      const updateResponse = await fetch(
-        "http://localhost:4000/user-cart-product",
-        {
-          method: "PUT",
-          body: JSON.stringify({ cart }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!updateResponse.ok) {
-        throw new Error();
-      }
-      dispatch(cartUIAction.showNotification({
-        title: "Success",
-        status: "success",
-        message: "Cart updated successfully!!"
-      }))
-    };
-
     if (initialCall) {
       initialCall=false;
       return;
     }
 
-    updateCartData().catch(err => {
-      dispatch(cartUIAction.showNotification({
-        title: "Error",
-        status: "error",
-        message: "Cart update Failed!!"
-      }));
-    })
+    //The redux will execute the function sendCartData for us.
+    dispatch(sendCartData(cart));
   }, [cart, dispatch]);
 
   return (
