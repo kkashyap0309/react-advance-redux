@@ -4,13 +4,13 @@ import Layout from "./components/Layout/Layout";
 import Products from "./components/Shop/Products";
 import { useEffect } from "react";
 import Notification from "./components/UI/Notification";
-import { sendCartData } from "./store/Cart-event-slice";
+import { fetchCartData, sendCartData } from "./store/Cart-action.js";
 
 let initialCall = true;
 
 function App() {
-  const dispatch  = useDispatch();
-  
+  const dispatch = useDispatch();
+
   const showCart = useSelector(fetchCartVisibility);
   function fetchCartVisibility(state) {
     return state.cartUI.showcart;
@@ -21,21 +21,27 @@ function App() {
   const cart = useSelector((state) => state.cart);
   useEffect(() => {
     if (initialCall) {
-      initialCall=false;
+      initialCall = false;
       return;
     }
 
-    //The redux will execute the function sendCartData for us.
-    dispatch(sendCartData(cart));
+    if (cart.dataChanged) { //the flag to chek if we need to send data to backend
+      //The redux will execute the function sendCartData for us.
+      dispatch(sendCartData(cart));
+    }
   }, [cart, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchCartData());
+  }, [dispatch]);
 
   return (
     <>
-    {notification && <Notification {...notification}/>}
-    <Layout>
-      {showCart && <Cart />}
-      <Products />
-    </Layout>
+      {notification && <Notification {...notification} />}
+      <Layout>
+        {showCart && <Cart />}
+        <Products />
+      </Layout>
     </>
   );
 }
